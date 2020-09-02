@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = "Modern client library for MPD"
   spec.description   = "A powerful, modern and feature complete library for the Music Player Daemon"
   spec.homepage      = "https://github.com/archSeer/ruby-mpd"
-  spec.license       = "GPL-2"
+  spec.license       = "GPL-2.0"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"
