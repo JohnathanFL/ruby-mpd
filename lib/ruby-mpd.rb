@@ -216,27 +216,27 @@ private
       old_status = {}
       while true
         status = mpd.status rescue {}
+        # Assume no change if we hit an edge case
+        status = old_status if status.class == true.class
+        
+        status[:connection] = mpd.connected?
 
-        if status.class != true.class
-          status[:connection] = mpd.connected?
+        status[:time] ||= [nil, nil] # elapsed, total
+        status[:audio] ||= [nil, nil, nil] # samp, bits, chans
+        status[:song] = mpd.current rescue nil
+        status[:updating_db] ||= nil
 
-          status[:time] ||= [nil, nil] # elapsed, total
-          status[:audio] ||= [nil, nil, nil] # samp, bits, chans
-          status[:song] = mpd.current rescue nil
-          status[:updating_db] ||= nil
+        status.each do |key, val|
+          next if val == old_status[key] # skip unchanged keys
+          emit key, *val # splat arrays
+        end
 
-          status.each do |key, val|
-            next if val == old_status[key] # skip unchanged keys
-            emit key, *val # splat arrays
-          end
+        old_status = status
+        sleep 0.1
 
-          old_status = status
-          sleep 0.1
-
-          unless status[:connection] || Thread.current[:stop]
-            sleep 2
-            mpd.connect rescue nil
-          end
+        unless status[:connection] || Thread.current[:stop]
+          sleep 2
+          mpd.connect rescue nil
         end
 
         Thread.stop if Thread.current[:stop]
